@@ -13,9 +13,7 @@ Everything runs in simulation with the open-source Icarus Verilog toolchain.
 Clock-domain crossing is one of the first things a chip design/verification
 interview will probe, because it's where subtle, hard-to-catch bugs live in
 real silicon. An asynchronous FIFO is the standard vehicle for demonstrating
-it: it forces you to reason about metastability, pointer synchronization, and
-what "safe to compare across domains" actually means, rather than just
-writing a counter and a mux.
+it.
 
 ## Architecture
 
@@ -53,7 +51,7 @@ writing a counter and a mux.
 - **`full` and `empty` are registered outputs**, not combinational — see
   "Bugs found during bring-up" below for why that matters.
 - **`almost_full` / `almost_empty`**: derived from the local binary pointer
-  and the *recovered binary* form of the synchronized remote Gray pointer —
+  and the *recovered binary* form of the synchronized remote Gray pointer and
   never from the remote domain's raw binary counter, which would silently
   reintroduce an unsafe CDC path.
 
@@ -75,9 +73,8 @@ async_fifo/
 
 ## Verification plan
 
-The testbench (`tb/tb_async_fifo.v`) is self-checking: every read is checked
-against a behavioral reference queue, not just eyeballed in a waveform
-viewer. It runs:
+The testbench (`tb/tb_async_fifo.v`) is self-checking and every read is checked
+against a behavioral reference queue. It runs like this:
 
 1. **Directed: fill to full.** Write past capacity without reading; confirm
    `full` asserts at exactly the right point and excess writes are silently
@@ -99,7 +96,7 @@ viewer. It runs:
    reads like a verification sign-off rather than a pass/fail stub.
 
 Both write and read tasks *always* drive their enable and let the DUT decide
-whether to honor it — the point is to prove the FIFO itself rejects invalid
+whether to honor it. The point is to prove the FIFO itself rejects invalid
 operations, not to avoid triggering them from the testbench.
 
 ### Latest run
@@ -130,15 +127,14 @@ operations, not to avoid triggering them from the testbench.
 ## Bugs found during bring-up (and why they're worth mentioning)
 
 Both of these were caught by actually simulating and reading the failure,
-not by inspection — which is the point of writing a testbench in the first
-place. Leaving them documented here because "I hit this and fixed it" is a
-more credible signal than a project that happened to work on the first try.
+not by inspection which is the point of writing a testbench in the first
+place.
 
 1. **Combinational loop through `full`.** The first version computed `full`
    with a continuous `assign` from `wr_gray_next`, while the pointer
    increment (`wr_bin_next`) was itself gated by `~full`. That's a direct
    cycle: `full → wr_bin_next → wr_gray_next → full`. Icarus Verilog doesn't
-   flag this — it just spins through zero-delay evaluation forever, so the
+   flag this so it just spins through zero-delay evaluation forever. The
    first simulation run hung indefinitely with no output and no error. The
    fix (and the textbook-correct approach, per Cummings) is to make `full`
    and `empty` **registered** outputs: the pointer increment is gated by the
@@ -151,8 +147,7 @@ more credible signal than a project that happened to work on the first try.
    wrapped, and reads past real data compared against uninitialized (`X`)
    memory, producing a wall of spurious mismatches that had nothing to do
    with the DUT. Fixed by sizing the reference array with headroom above the
-   test's real operation count — a reminder to size your *testbench*
-   scoreboard as carefully as the RTL it's checking.
+   test's real operation count.
 
 ## Running it
 
