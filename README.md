@@ -125,7 +125,7 @@ operations, not to avoid triggering them from the testbench.
 =====================================================
 ```
 
-![Waveform of the directed fill-to-full / drain-to-empty test](waveform.png)
+![Waveform of the directed fill-to-full / drain-to-empty test](docs/waveform.png)
 
 ## Bugs found during bring-up (and why they're worth mentioning)
 
