@@ -123,7 +123,9 @@ operations, not to avoid triggering them from the testbench.
 ```
 
 ![Waveform of the directed fill-to-full / drain-to-empty test](docs/waveform.png)
+Same test explored interactively in GTKWave — signals expanded from the SST tree, zoomed into the first 900ns:
 
+![GTKWave view of wr_clk, rd_clk, full, empty, and data buses during the directed test](docs/gtkwave_screenshot.png)
 ## Bugs found during bring-up (and why they're worth mentioning)
 
 Both of these were caught by actually simulating and reading the failure,
