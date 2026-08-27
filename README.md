@@ -6,8 +6,7 @@ built to demonstrate front-end RTL design and verification practice for
 ASIC/digital-design work: clock-domain crossing (CDC), Gray-code pointer
 synchronization, and a verification methodology beyond "it compiled."
 
-No FPGA board required — everything here runs in simulation with the
-open-source Icarus Verilog toolchain.
+Everything runs in simulation with the open-source Icarus Verilog toolchain.
 
 ## Why this project
 
@@ -29,7 +28,7 @@ writing a counter and a mux.
    │   dual-port memory  ──────┼── mem[] ───┼──►  read data out         │
    │           │               │            │           │               │
    │   wr_gray ├──────────────►│  2-flop    │◄──────────┤ rd_gray       │
-   │           │   synchronizer│  sync      │ synchronizer│              │
+   │           │   synchronizer│  sync      │           │synchronizer   │
    │           ▼               │            │           ▼               │
    │   compare vs rd_gray_sync │            │  compare vs wr_gray_sync  │
    │        -> full (reg)      │            │        -> empty (reg)     │
